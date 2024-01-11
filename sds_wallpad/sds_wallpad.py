@@ -291,6 +291,7 @@ DISCOVERY_PAYLOAD = {
         "_intg": "sensor",
         "~": "{prefix}/plug/{idn}",
         "name": "{prefix}_plug_{idn}_power_usage",
+        "dev_cla": "power",
         "stat_t": "~/current/state",
         "unit_of_meas": "W",
     } ],
@@ -372,19 +373,27 @@ class SDSSerial:
         self._pending_recv = 0
 
         # 시리얼에 뭐가 떠다니는지 확인
-        self.set_timeout(5.0)
+        self.set_timeout(5)
         data = self._recv_raw(1)
-        self.set_timeout(None)
+        self.set_timeout(10)
         if not data:
-            logger.critical("no active packet at this serial port!")
+            raise RuntimeError("no active packet at this serial port!")
 
     def _recv_raw(self, count=1):
-        return self._ser.read(count)
+        try:
+            return self._ser.read(count)
+        except serial.SerialTimeoutException:
+            return None
+        except Exception as e:
+            logger.warning("unhandled exception {}".format(e))
 
     def recv(self, count=1):
         # serial은 pending count만 업데이트
         self._pending_recv = max(self._pending_recv - count, 0)
-        return self._recv_raw(count)
+        data = self._recv_raw(count)
+        if not data or len(data) < count:
+            raise RuntimeError("serial connection lost!")
+        return data
 
     def send(self, a):
         self._ser.write(a)
@@ -414,19 +423,26 @@ class SDSSocket:
         self._pending_recv = 0
 
         # 소켓에 뭐가 떠다니는지 확인
-        self.set_timeout(5.0)
+        self.set_timeout(5)
         data = self._recv_raw(1)
-        self.set_timeout(None)
+        self.set_timeout(10)
         if not data:
-            logger.critical("no active packet at this socket!")
+            raise RuntimeError("no active packet at this socket!")
 
     def _recv_raw(self, count=1):
-        return self._soc.recv(count)
+        try:
+            return self._soc.recv(count)
+        except socket.timeout:
+            return None
+        except Exception as e:
+            logger.warning("unhandled exception {}".format(e))
 
     def recv(self, count=1):
         # socket은 버퍼와 in_waiting 직접 관리
         while len(self._recv_buf) < count:
             new_data = self._recv_raw(256)
+            if not new_data:
+                raise RuntimeError("socket connection lost!")
             self._recv_buf.extend(new_data)
 
         self._pending_recv = max(self._pending_recv - count, 0)
@@ -782,8 +798,7 @@ def start_mqtt_loop():
     try:
         mqtt.connect(Options["mqtt"]["server"], Options["mqtt"]["port"])
     except Exception as e:
-        logger.error("MQTT server address/port may be incorrect! ({})".format(str(e)))
-        sys.exit(1)
+        raise AssertionError("MQTT server address/port may be incorrect! ({})".format(str(e)))
 
     mqtt.loop_start()
 
@@ -799,16 +814,27 @@ def virtual_enable(header_0, header_1):
 
     # 마무리만 하드코딩으로 좀 하자... 슬슬 귀찮다
     if header_1 == 0x32:
+        payload = "OFF"
+        topic = "{}/virtual/intercom/public/state".format(prefix)
+        logger.info("doorlock status: {} = {}".format(topic, payload))
+        mqtt.publish(topic, payload)
+
         payload = "online"
         topic = "{}/virtual/intercom/public/available".format(prefix)
         logger.info("doorlock status: {} = {}".format(topic, payload))
         mqtt.publish(topic, payload)
 
     elif header_1 == 0x31:
+        payload = "OFF"
+        topic = "{}/virtual/intercom/private/state".format(prefix)
+        logger.info("doorlock status: {} = {}".format(topic, payload))
+        mqtt.publish(topic, payload)
+
         payload = "online"
         topic = "{}/virtual/intercom/private/available".format(prefix)
         logger.info("doorlock status: {} = {}".format(topic, payload))
         mqtt.publish(topic, payload)
+
         VIRTUAL_DEVICE["intercom"]["trigger"]["private"] = VIRTUAL_DEVICE["intercom"]["trigger"]["priv_a"]
 
     elif header_1 == 0x36 or header_1 == 0x3E:
@@ -963,12 +989,7 @@ def serial_peek_value(parse, packet):
     elif pattern == "2Byte":
         value += packet[pos-1] << 8
     elif pattern == "6decimal":
-        try:
-            value = packet[pos : pos+3].hex()
-        except:
-            # 어쩌다 깨지면 뻗음...
-            logger.warning("invalid packet, {} is not decimal".format(packet.hex()))
-            value = 0
+        value = packet[pos : pos+3].hex()
 
     return [(attr, value)]
 
@@ -980,7 +1001,10 @@ def serial_new_device(device, idn, packet):
     if device == "light":
         id2 = last_query[3]
         num = idn >> 4
-        idn = int("{:x}".format(idn))
+        try:
+            idn = int("{:x}".format(idn))
+        except:
+            logger.warning("invalid packet, light room number {} is not decimal".format(idn))
 
         for bit in range(0, num):
             payload = DISCOVERY_PAYLOAD[device][0].copy()
@@ -1002,6 +1026,8 @@ def serial_new_device(device, idn, packet):
                 payload["name"] = "{}_{}_consumption".format(prefix, ("power", "gas", "water")[idn])
                 payload["unit_of_meas"] = ("W", "m³/h", "m³/h")[idn]
                 payload["val_tpl"] = ("{{ value }}", "{{ value | float / 100 }}", "{{ value | float / 100 }}")[idn]
+                if idn == 0:
+                    payload["dev_cla"] = "power"
 
             mqtt_discovery(payload)
 
@@ -1064,7 +1090,7 @@ def serial_get_header():
             header_0 = header_1
 
     except (OSError, serial.SerialException):
-        logger.error("ignore exception!")
+        logger.warning("ignore exception {}".format(e))
         header_0 = header_1 = 0
 
     # 헤더 반환
@@ -1236,18 +1262,11 @@ def dump_loop():
                     else:           logs.append(",  {:02X}".format(b))
         logger.info("".join(logs))
         logger.warning("dump done.")
-        conn.set_timeout(None)
+        conn.set_timeout(10)
 
 
-if __name__ == "__main__":
+def conn_init():
     global conn
-
-    # configuration 로드 및 로거 설정
-    init_logger()
-    init_option(sys.argv)
-    init_logger_file()
-
-    init_virtual_device()
 
     if Options["serial_mode"] == "socket":
         logger.info("initialize socket...")
@@ -1256,12 +1275,27 @@ if __name__ == "__main__":
         logger.info("initialize serial...")
         conn = SDSSerial()
 
-    dump_loop()
 
-    start_mqtt_loop()
+if __name__ == "__main__":
+    # configuration 로드 및 로거 설정
+    init_logger()
+    init_option(sys.argv)
+    init_logger_file()
 
-    try:
-        # 무한 루프
-        serial_loop()
-    except:
-        logger.exception("addon finished!")
+    init_virtual_device()
+
+    while True:
+        try:
+            conn_init()
+            dump_loop()
+            start_mqtt_loop()
+
+            # 무한 루프
+            serial_loop()
+
+        except RuntimeError as e:
+            logger.warning("restart addon ... ({})".format(str(e)))
+            time.sleep(2)
+        except Exception as e:
+            logger.exception("addon exception! ({})".format(str(e)))
+            sys.exit(1)
