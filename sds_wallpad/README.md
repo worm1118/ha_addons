@@ -36,10 +36,12 @@
 * 동작 조건
     * **EW11 (소켓 통신) 사용 시 지원 불가**
     * **기존 현관 스위치의 RS485 연결을 분리 필요**
-       * EW11에서도 현관 스위치를 분리하지 않고 intercom\_mode를 "minimal" 로 설정하면 엘리베이터 호출에 성공하는 경우가 있습니다.
-       * 성공 확률 및 소요시간은 설치 환경마다 다릅니다. 자세한 내용은 아래 [항목 설명](https://github.com/n-andflash/ha_addons/tree/master/sds_wallpad#entrance_mode-off--minimal--full)을 참고하세요.
+        * EW11에서도 현관 스위치를 분리하지 않고 intercom\_mode를 "minimal" 로 설정하면 엘리베이터 호출에 성공하는 경우가 있습니다.
+        * 성공 확률 및 소요시간은 설치 환경마다 다릅니다. 자세한 내용은 아래 [항목 설명](https://github.com/n-andflash/ha_addons/tree/master/sds_wallpad#entrance_mode-off--minimal--full)을 참고하세요.
     * Configuration에서 entrance\_mode를 "full" 로 변경
-        * 디스플레이가 달린 신형 현관스위치인 경우 "full" 대신 "new" 로 변경
+        * **디스플레이가 달린 신형 현관스위치인 경우:**
+            * RS485 연결을 분리하기 전에 "full" 로 시도해보세요. 월패드가 구형 현관스위치도 스캔하는 경우 그대로 성공할 수 있습니다.
+            * 동작하지 않으면 신형 현관스위치의 RS485 연결을 분리하고 "full" 대신 "new" 로 변경해야 사용이 가능합니다.
 * 지원 기능
     * 엘리베이터 호출
     * 가스밸브 잠금
@@ -174,6 +176,10 @@
 #### intercom\_header (기본값: A45A)
 * 평상시 RS485 덤프에서 A15A, A25A, A35A, A45A, A55A, A65A 중 한 가지가 보여야 intercom\_mode 를 사용할 수 있습니다.
 * 보이는 패킷을 입력해 주세요.
+
+#### intercom\_delay (기본값: false)
+* 일부 환경에서 공동현관 초인종이 울렸을때 통화를 시작하자마자 문열림을 보내면 무시되는 경우가 있습니다.
+* 그럴때 이 옵션을 켜면 통화 2초 유지 후 문을 엽니다.
 
 ### log:
 #### to\_file (true / false)
