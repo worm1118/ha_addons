@@ -1057,7 +1057,7 @@ def serial_peek_value(parse, packet):
     elif pattern == "fan_toggle":
         value = 5 if value == 0 else 6
     elif pattern == "fan_speed":
-        value = ["", "high", "medium", "low", "auto"][value]
+        value = ["", "high", "medium", "low", "auto"][value] if 0 <= value <= 4 else ""
     elif pattern == "heat_toggle":
         value = "heat" if value & 1 else "off"
     elif pattern == "value":
