@@ -1019,7 +1019,7 @@ def serial_verify_checksum(packet):
 
     # checksum이 안맞으면 로그만 찍고 무시
     if checksum:
-        logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
+        # logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
         return False
 
     # 정상
