@@ -1,4 +1,4 @@
-# 삼성SDS 월패드 RS485 Add-on - TUNE (엘리베이터 호출 지원)
+# 삼성SDS 월패드 RS485 Add-on - TUNA modified (엘리베이터 호출 지원)
 
 ![Supports aarch64 Architecture][aarch64-shield] ![Supports amd64 Architecture][amd64-shield] ![Supports armhf Architecture][armhf-shield] ![Supports armv7 Architecture][armv7-shield] ![Supports i386 Architecture][i386-shield]
 
