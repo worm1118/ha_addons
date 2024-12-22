@@ -1020,7 +1020,7 @@ def serial_verify_checksum(packet):
 
     # checksum이 안맞으면 로그만 찍고 무시
     if checksum:
-        logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
+        # logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
         return False
 
     # 정상
@@ -1058,7 +1058,7 @@ def serial_peek_value(parse, packet):
     elif pattern == "fan_toggle":
         value = 5 if value == 0 else 6
     elif pattern == "fan_speed":
-        value = ["", "high", "medium", "low", "auto"][value]
+        value = ["", "high", "medium", "low", "auto"][value] if 0 <= value <= 4 else ""
     elif pattern == "heat_toggle":
         value = "heat" if value & 1 else "off"
     elif pattern == "value":
