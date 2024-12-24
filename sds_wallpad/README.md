@@ -1,4 +1,4 @@
-# 삼성SDS 월패드 RS485 Add-on (엘리베이터 호출 지원) TUNA modified
+# 삼성SDS 월패드 RS485 Add-on - TUNA modified
 
 ## 소개
 
