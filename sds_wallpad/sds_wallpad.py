@@ -12,6 +12,9 @@ from logging.handlers import TimedRotatingFileHandler
 import os.path
 import re
 
+import requests
+import os
+
 ####################
 VIRTUAL_DEVICE = {
     # 현관스위치: 엘리베이터 호출, 가스밸브 잠금 지원
@@ -1362,6 +1365,16 @@ def conn_init():
         logger.info("initialize serial...")
         conn = SDSSerial()
 
+def restart_addon():
+    supervisor_token = os.getenv("SUPERVISOR_TOKEN")
+    url = "http://supervisor/addons/self/restart"
+    headers = {"Authorization": f"Bearer {supervisor_token}"}
+
+    response = requests.post(url, headers=headers)
+    if response.status_code == 200:
+        print("Addon restart triggered successfully.")
+    else:
+        print(f"Failed to restart addon: {response.text}")
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
@@ -1382,6 +1395,7 @@ if __name__ == "__main__":
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
+            restart_addon()
             time.sleep(2)
         except Exception as e:
             logger.exception("addon exception! ({})".format(str(e)))
