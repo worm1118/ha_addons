@@ -12,7 +12,7 @@ from logging.handlers import TimedRotatingFileHandler
 import os.path
 import re
 
-import requests
+import urllib.request
 import os
 
 ####################
@@ -1370,11 +1370,15 @@ def restart_addon():
     url = "http://supervisor/addons/self/restart"
     headers = {"Authorization": f"Bearer {supervisor_token}"}
 
-    response = requests.post(url, headers=headers)
-    if response.status_code == 200:
-        print("Addon restart triggered successfully.")
-    else:
-        print(f"Failed to restart addon: {response.text}")
+    req = urllib.request.Request(url, method="POST", headers=headers)
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status == 200:
+                print("Addon restart triggered successfully.")
+            else:
+                print(f"Failed to restart addon: {response.status}")
+    except Exception as e:
+        print(f"Error occurred: {e}")
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
