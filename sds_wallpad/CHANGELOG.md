@@ -1,5 +1,9 @@
 # 수정 내역 (눌러서 확인하세요)
 
+## 10.331
+
+* import urllib.request
+
 ## 10.33
 
 * restart addon 방식 개선
