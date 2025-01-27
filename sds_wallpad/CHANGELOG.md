@@ -1,20 +1,11 @@
 # 수정 내역 (눌러서 확인하세요)
 
-## 10.34
-
-* 애드온 초기화 및 Serial connection lost로 강제 재시작 시 디스코드 알림 메시지 전송: send_discord_message_with_curl() 함수 추가
-
-## 10.33
-
-* restart addon 방식 개선: restart_addon() 함수 추가
-
-## 10.32
-
-* readme 문서 간소화
-
 ## 10.31
 * Fan 때문에 죽는 방어 코드 추가
 * Checksum error log 출력 코드 주석 처리
+* readme 문서 간소화
+* restart_addon(): serial connection lost! 문제 발생 시 restart addon 방식 개선
+* send_discord_message_with_curl(): 애드온 초기화 및 Serial connection lost로 강제 재시작 시 디스코드 알림 메시지 전송
 
 ## 10.3
 
