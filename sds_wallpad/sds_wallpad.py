@@ -1380,6 +1380,19 @@ def restart_addon():
     except Exception as e:
         print(f"Error occurred: {e}")
 
+def send_discord_message(webhook_url, message):
+    payload = json.dumps({"content": message}).encode("utf-8")
+    req = urllib.request.Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status == 204:
+                print("Message sent successfully!")
+            else:
+                print(f"Failed to send message: {response.status}")
+    except Exception as e:
+        print(f"Error sending message: {e}")
+
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
     init_logger()
@@ -1399,6 +1412,7 @@ if __name__ == "__main__":
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
+            send_discord_message("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS Addon from Home Assistant!")
             restart_addon()
             time.sleep(2)
         except Exception as e:
