@@ -1381,17 +1381,23 @@ def restart_addon():
         print(f"Error occurred: {e}")
 
 def send_discord_message(webhook_url, message):
+    import urllib.error
     payload = json.dumps({"content": message}).encode("utf-8")
     req = urllib.request.Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
     
     try:
         with urllib.request.urlopen(req) as response:
-            if response.status == 204:
+            status_code = response.status
+            if status_code == 204:
                 logger.info("Message sent successfully!")
             else:
-                logger.info("Failed to send message.")
+                logger.warning(f"Failed to send message. Status code: {status_code}")
+    except urllib.error.HTTPError as e:
+        logger.warning(f"HTTPError: {e.code}, {e.reason}")
+    except urllib.error.URLError as e:
+        logger.warning(f"URLError: {e.reason}")
     except Exception as e:
-        print(f"Error sending message: {e}")
+        logger.warning(f"Error sending message: {e}")
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
