@@ -1399,6 +1399,9 @@ def send_discord_message_with_curl(webhook_url, message):
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
+    
+    send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Initialize SDS Addon!")
+    
     init_logger()
     init_option(sys.argv)
     init_logger_file()
@@ -1417,7 +1420,7 @@ if __name__ == "__main__":
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
             send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS Addon from Home Assistant!")
-            logger.info("send_discord_message() called. Call restart_addon().")
+            # logger.info("send_discord_message() called. Call restart_addon().")
             restart_addon()
             time.sleep(2)
         except Exception as e:
