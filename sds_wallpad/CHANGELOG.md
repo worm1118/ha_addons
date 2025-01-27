@@ -1,32 +1,12 @@
 # 수정 내역 (눌러서 확인하세요)
 
-## 10.3333
-
-* 애드온 시작할 때도 디스코드 메시지 보내기
-
-## 10.3332
-
-* curl 방식으로 디스코드 메시지 출력 변경 시도
-
-## 10.3331
-
-* 로그도 제대로 안 찍혀서 urllib.error 및 에러 로그 출력 강화
-
-## 10.333
-
-* 디스코드 메시지가 안 와서 logger.info로 로그 찍도록 수정
-
-## 10.332
-
-* 애드온 재시작 시 디스코드 알림 메시지 전송
-
 ## 10.331
 
-* import urllib.request
+* 애드온 초기화 및 Serial connection lost로 강제 재시작 시 디스코드 알림 메시지 전송: send_discord_message_with_curl() 함수 추가
 
 ## 10.33
 
-* restart addon 방식 개선
+* restart addon 방식 개선: restart_addon() 함수 추가
 
 ## 10.32
 
