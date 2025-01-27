@@ -1,6 +1,6 @@
 # 수정 내역 (눌러서 확인하세요)
 
-## 10.331
+## 10.34
 
 * 애드온 초기화 및 Serial connection lost로 강제 재시작 시 디스코드 알림 메시지 전송: send_discord_message_with_curl() 함수 추가
 
