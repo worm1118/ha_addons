@@ -1387,9 +1387,9 @@ def send_discord_message(webhook_url, message):
     try:
         with urllib.request.urlopen(req) as response:
             if response.status == 204:
-                print("Message sent successfully!")
+                logger.info("Message sent successfully!")
             else:
-                print(f"Failed to send message: {response.status}")
+                logger.info("Failed to send message.")
     except Exception as e:
         print(f"Error sending message: {e}")
 
@@ -1413,6 +1413,7 @@ if __name__ == "__main__":
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
             send_discord_message("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS Addon from Home Assistant!")
+            logger.info("send_discord_message() called. Call restart_addon().")
             restart_addon()
             time.sleep(2)
         except Exception as e:
