@@ -12,8 +12,7 @@ from logging.handlers import TimedRotatingFileHandler
 import os.path
 import re
 
-import urllib.request
-import os
+import subprocess
 
 ####################
 VIRTUAL_DEVICE = {
@@ -1380,24 +1379,23 @@ def restart_addon():
     except Exception as e:
         print(f"Error occurred: {e}")
 
-def send_discord_message(webhook_url, message):
-    import urllib.error
-    payload = json.dumps({"content": message}).encode("utf-8")
-    req = urllib.request.Request(webhook_url, data=payload, headers={"Content-Type": "application/json"})
+def send_discord_message_with_curl(webhook_url, message):
+    # curl 명령어 구성
+    curl_command = [
+        "curl", "-X", "POST",
+        "-H", "Content-Type: application/json",
+        "-d", f'{{"content":"{message}"}}',
+        webhook_url
+    ]
     
     try:
-        with urllib.request.urlopen(req) as response:
-            status_code = response.status
-            if status_code == 204:
-                logger.info("Message sent successfully!")
-            else:
-                logger.warning(f"Failed to send message. Status code: {status_code}")
-    except urllib.error.HTTPError as e:
-        logger.warning(f"HTTPError: {e.code}, {e.reason}")
-    except urllib.error.URLError as e:
-        logger.warning(f"URLError: {e.reason}")
+        # curl 명령 실행
+        result = subprocess.run(curl_command, capture_output=True, text=True, check=True)
+        logger.info("Message sent successfully via curl!")
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to send message via curl: {e.stderr}")
     except Exception as e:
-        logger.warning(f"Error sending message: {e}")
+        logger.warning(f"Unexpected error while sending message via curl: {e}")
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
@@ -1418,7 +1416,7 @@ if __name__ == "__main__":
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
-            send_discord_message("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS Addon from Home Assistant!")
+            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS Addon from Home Assistant!")
             logger.info("send_discord_message() called. Call restart_addon().")
             restart_addon()
             time.sleep(2)
