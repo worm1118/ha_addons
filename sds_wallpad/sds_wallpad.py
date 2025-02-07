@@ -1406,17 +1406,21 @@ if __name__ == "__main__":
     init_option(sys.argv)
     init_logger_file()
 
-    send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Initializing SDS addon...")
+    send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Initializing SDS addon... init_virtual_device()")
     
     init_virtual_device()
 
     while True:
         try:
+            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "conn_init()")
             conn_init()
+            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "dump_loop()")
             dump_loop()
+            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "start_mqtt_loop()")
             start_mqtt_loop()
 
             # 무한 루프
+            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "serial_loop()")
             serial_loop()
 
         except RuntimeError as e:
