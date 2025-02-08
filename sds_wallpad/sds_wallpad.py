@@ -1404,11 +1404,12 @@ def send_discord_message_with_curl(webhook_url, message):
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
+    send_discord_message_with_curl(WEBHOOK_URL, "Starting main()")
+
     init_logger()
     init_option(sys.argv)
     init_logger_file()
 
-    send_discord_message_with_curl(WEBHOOK_URL, "Initializing SDS addon... init_virtual_device()")
     init_virtual_device()
 
     while True:
@@ -1418,16 +1419,13 @@ if __name__ == "__main__":
             start_mqtt_loop()
 
             # 무한 루프
-            send_discord_message_with_curl(WEBHOOK_URL, "serial_loop()")
             serial_loop()
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
-            # send_discord_message_with_curl(WEBHOOK_URL, "except: restart_addon()")
-            # restart_addon()
-            time.sleep(2)
-            send_discord_message_with_curl(WEBHOOK_URL, "except: continue")
-            continue
+            send_discord_message_with_curl(WEBHOOK_URL, "except: restart_addon()")
+            restart_addon()
+            # time.sleep(2)
         except Exception as e:
             logger.exception("addon exception! ({})".format(str(e)))
             sys.exit(1)
