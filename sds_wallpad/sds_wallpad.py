@@ -18,6 +18,8 @@ import urllib.request
 import subprocess
 
 ####################
+WEBHOOK_URL = "https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z"
+
 VIRTUAL_DEVICE = {
     # 현관스위치: 엘리베이터 호출, 가스밸브 잠금 지원
     "entrance": {
@@ -1406,28 +1408,26 @@ if __name__ == "__main__":
     init_option(sys.argv)
     init_logger_file()
 
-    send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Initializing SDS addon... init_virtual_device()")
-    
+    send_discord_message_with_curl(WEBHOOK_URL, "Initializing SDS addon... init_virtual_device()")
     init_virtual_device()
 
     while True:
         try:
-            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "conn_init()")
             conn_init()
-            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "dump_loop()")
             dump_loop()
-            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "start_mqtt_loop()")
             start_mqtt_loop()
 
             # 무한 루프
-            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "serial_loop()")
+            send_discord_message_with_curl(WEBHOOK_URL, "serial_loop()")
             serial_loop()
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
-            send_discord_message_with_curl("https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z", "Restart SDS addon due to serial connection lost!")
-            restart_addon()
+            # send_discord_message_with_curl(WEBHOOK_URL, "except: restart_addon()")
+            # restart_addon()
             time.sleep(2)
+            send_discord_message_with_curl(WEBHOOK_URL, "except: continue")
+            continue
         except Exception as e:
             logger.exception("addon exception! ({})".format(str(e)))
             sys.exit(1)
