@@ -12,6 +12,10 @@ from logging.handlers import TimedRotatingFileHandler
 import os.path
 import re
 
+import os
+import urllib.request
+import subprocess
+
 ####################
 VIRTUAL_DEVICE = {
     # 현관스위치: 엘리베이터 호출, 가스밸브 잠금 지원
@@ -1020,7 +1024,7 @@ def serial_verify_checksum(packet):
 
     # checksum이 안맞으면 로그만 찍고 무시
     if checksum:
-        logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
+        # logger.warning("checksum fail! {}, {:02x}".format(packet.hex(), checksum))
         return False
 
     # 정상
@@ -1058,7 +1062,7 @@ def serial_peek_value(parse, packet):
     elif pattern == "fan_toggle":
         value = 5 if value == 0 else 6
     elif pattern == "fan_speed":
-        value = ["", "high", "medium", "low", "auto"][value]
+        value = ["", "high", "medium", "low", "auto"][value] if 0 <= value <= 4 else ""
     elif pattern == "heat_toggle":
         value = "heat" if value & 1 else "off"
     elif pattern == "value":
@@ -1351,6 +1355,38 @@ def dump_loop():
         logger.warning("dump done.")
         conn.set_timeout(10)
 
+def restart_addon():
+    supervisor_token = os.getenv("SUPERVISOR_TOKEN")
+    url = "http://supervisor/addons/self/restart"
+    headers = {"Authorization": f"Bearer {supervisor_token}"}
+
+    req = urllib.request.Request(url, method="POST", headers=headers)
+    try:
+        with urllib.request.urlopen(req) as response:
+            if response.status == 200:
+                print("Addon restart triggered successfully.")
+            else:
+                print(f"Failed to restart addon: {response.status}")
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+def send_discord_message_with_curl(webhook_url, message):
+    # curl 명령어 구성
+    curl_command = [
+        "curl", "-X", "POST",
+        "-H", "Content-Type: application/json",
+        "-d", f'{{"content":"{message}"}}',
+        webhook_url
+    ]
+    
+    try:
+        # curl 명령 실행
+        result = subprocess.run(curl_command, capture_output=True, text=True, check=True)
+        logger.info("Message sent successfully via curl!")
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Failed to send message via curl: {e.stderr}")
+    except Exception as e:
+        logger.warning(f"Unexpected error while sending message via curl: {e}")
 
 def conn_init():
     global conn
@@ -1362,9 +1398,12 @@ def conn_init():
         logger.info("initialize serial...")
         conn = SDSSerial()
 
+WEBHOOK_URL = "https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z"
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
+    send_discord_message_with_curl(WEBHOOK_URL, "Starting main()")
+
     init_logger()
     init_option(sys.argv)
     init_logger_file()
@@ -1382,7 +1421,9 @@ if __name__ == "__main__":
 
         except RuntimeError as e:
             logger.warning("restart addon ... ({})".format(str(e)))
-            time.sleep(2)
+            send_discord_message_with_curl(WEBHOOK_URL, "except: restart_addon()")
+            restart_addon()
+            # time.sleep(2)
         except Exception as e:
             logger.exception("addon exception! ({})".format(str(e)))
             sys.exit(1)
