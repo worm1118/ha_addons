@@ -1398,11 +1398,10 @@ def conn_init():
         logger.info("initialize serial...")
         conn = SDSSerial()
 
-WEBHOOK_URL = "https://discord.com/api/webhooks/1333306959025148067/PJqQT8e7-MJWjBgGtNfMLN04mVZFzi4GW8vhBzFJQiICMpyqBihcH8okra_VgKeyIH0Z"
+
 
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
-    send_discord_message_with_curl(WEBHOOK_URL, "Starting main()")
 
     init_logger()
     init_option(sys.argv)
@@ -1410,6 +1409,9 @@ if __name__ == "__main__":
 
     init_virtual_device()
 
+    WEBHOOK_URL = Options["webhook_url"]
+    send_discord_message_with_curl(WEBHOOK_URL, "Starting main()")    
+    
     while True:
         try:
             conn_init()
