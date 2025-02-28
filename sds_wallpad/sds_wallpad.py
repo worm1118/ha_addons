@@ -1398,19 +1398,15 @@ def conn_init():
         logger.info("initialize serial...")
         conn = SDSSerial()
 
-
-
 if __name__ == "__main__":
     # configuration 로드 및 로거 설정
-
     init_logger()
     init_option(sys.argv)
     init_logger_file()
 
     init_virtual_device()
 
-    WEBHOOK_URL = Options["webhook_url"]
-    send_discord_message_with_curl(WEBHOOK_URL, "Starting main()")    
+    send_discord_message_with_curl(Options["webhook_url"], "Addon started.")
     
     while True:
         try:
@@ -1422,8 +1418,9 @@ if __name__ == "__main__":
             serial_loop()
 
         except RuntimeError as e:
-            logger.warning("restart addon ... ({})".format(str(e)))
-            send_discord_message_with_curl(WEBHOOK_URL, "except: restart_addon()")
+            error_msg = f"RuntimeError occurred: {e} - Restarting addon."
+            logger.warning(error_msg)
+            send_discord_message_with_curl(Options["webhook_url"], error_msg)
             restart_addon()
             # time.sleep(2)
         except Exception as e:
