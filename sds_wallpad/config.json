@@ -51,7 +51,7 @@
 			"to_file": true,
 			"filename": "/share/sds_wallpad.log"
 		},
-		"webhook_url": null
+		"webhook_url": "your_discord_webhook_url"
 	},
 	"schema": {
 		"serial_mode": "list(serial|socket)",
