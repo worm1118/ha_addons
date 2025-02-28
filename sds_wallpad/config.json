@@ -1,5 +1,5 @@
 {
-	"version": "10.31",
+	"version": "10.32",
 	"slug": "sds_wallpad",
 	"name": "Samsung SDS RS485 Addon with Elevator Call_TUNA rev.",
 	"description": "삼성 SDS 월패드용 애드온입니다. 엘리베이터 호출 및 가스밸브 차단 기능을 제공합니다.",
@@ -51,6 +51,7 @@
 			"to_file": true,
 			"filename": "/share/sds_wallpad.log"
 		}
+		"webhook_url": null
 	},
 	"schema": {
 		"serial_mode": "list(serial|socket)",
@@ -91,5 +92,6 @@
 			"to_file": "bool",
 			"filename": "str"
 		}
+		"webhook_url": "str?"
 	}
 }
