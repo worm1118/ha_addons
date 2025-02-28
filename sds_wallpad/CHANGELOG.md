@@ -1,5 +1,11 @@
 # 수정 내역 (눌러서 확인하세요)
 
+## 10.31
+
+* fan index 문제로 죽는 현상 방어 코드 추가 (line 1065)
+* "serial connection lost!" 에러 발생 시 사용하는 애드온 재시작 함수 (restart_addon()) 및 호출 추가 @메인
+* 디스코드 메시지 전달 기능 추가
+
 ## 10.3
 
 * entrance\_mode가 minimal일때 엘리베이터 호출 시도하면 죽는 문제 수정
