@@ -1,5 +1,9 @@
 # 수정 내역 (눌러서 확인하세요)
 
+## 10.331
+
+* "serial connection lost!" 발생 시 runtimeError 넘기지 않고 return None으로 변경해 봄. 어떻게 될지 모름.
+
 ## 10.33
 
 * 에러 메시지 일부 수정
