@@ -437,10 +437,7 @@ class SDSSerial:
         self._pending_recv = max(self._pending_recv - count, 0)
         data = self._recv_raw(count)
         if not data or len(data) < count:
-            # raise RuntimeError("serial connection lost!")
-            logger.info("original: serial connection lost!, but CONTINUE;")
-            send_discord_message_with_curl(Options["webhook_url"], "original: serial connection lost!, but CONTINUE;")
-            return None
+            raise RuntimeError("serial connection lost!")
         return data
 
     def send(self, a):
