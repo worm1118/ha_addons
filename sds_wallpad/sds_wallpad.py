@@ -1420,8 +1420,8 @@ if __name__ == "__main__":
         except RuntimeError as e:
             error_msg = f"RuntimeError occurred: {e} - Restarting addon."
             logger.warning(error_msg)
-            # send_discord_message_with_curl(Options["webhook_url"], error_msg)
-            # restart_addon()
+            send_discord_message_with_curl(Options["webhook_url"], error_msg)
+            restart_addon()
             # time.sleep(2)
         except Exception as e:
             logger.exception("addon exception! ({})".format(str(e)))
